@@ -2,7 +2,7 @@ import React from "react"
 import useMarketPlace from "../../hooks/useMarketPlace"
 
 const ConnectButton = () => {
-    const { isAuthenticated, authenticate, logout } = useMarketPlace()
+    const { isAuthenticated, authenticate, logout, isWeb3Enabled } = useMarketPlace()
 
     const login = async () => {
         try {

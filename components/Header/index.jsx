@@ -4,9 +4,6 @@ import useMarketPlace from "../../hooks/useMarketPlace"
 
 const Header = ({ pathname }) => {
     const { user, nativeBalance } = useMarketPlace()
-    console.log("##user Header", user?.get("ethAddress"))
-
-    console.log("##nativeBalance", nativeBalance, typeof nativeBalance)
 
     return (
         <header>

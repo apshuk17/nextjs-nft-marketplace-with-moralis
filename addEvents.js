@@ -6,7 +6,6 @@ const contractAddresses = require("./constants/networkMapping.json")
 const chainId = process.env.CHAINID.toString().trim()
 const moralisChainId = chainId === "31337" ? "1337" : chainId
 
-
 const contractAddress = contractAddresses[chainId]["NftMarketplace"][0]
 
 /* Moralis init code */
@@ -14,17 +13,16 @@ const serverUrl = process.env.NEXT_PUBLIC_MORALIS_SERVER_URL
 const appId = process.env.NEXT_PUBLIC_MORALIS_APP_ID
 const masterKey = process.env.MORALIS_MASTER_KEY
 
-
 const main = async () => {
     await Moralis.start({ serverUrl, appId, masterKey })
     console.log(`Working with contract address ${contractAddress}`)
 
-    const itemListedOptions = {
-        // Moralis understands a local chainId 1337 only
+    let itemListedOptions = {
+        // Moralis understands a local chain is 1337
         chainId: moralisChainId,
-        address: contractAddress,
         sync_historical: true,
-        topic: "ItemListed(address,address,uint256,uin256)",
+        topic: "ItemListed(address,address,uint256,uint256)",
+        address: contractAddress,
         abi: {
             anonymous: false,
             inputs: [
@@ -59,11 +57,11 @@ const main = async () => {
         tableName: "ItemListed",
     }
 
-    const itemBoughtOptions = {
+    let itemBoughtOptions = {
         chainId: moralisChainId,
         address: contractAddress,
         sync_historical: true,
-        topic: "ItemBought(address,address,uint256,uin256)",
+        topic: "ItemBought(address,address,uint256,uint256)",
         abi: {
             anonymous: false,
             inputs: [
@@ -98,11 +96,11 @@ const main = async () => {
         tableName: "ItemBought",
     }
 
-    const itemCancelledOptions = {
+    let itemCanceledOptions = {
         chainId: moralisChainId,
         address: contractAddress,
+        topic: "ItemCancelled(address,address,uint256)",
         sync_historical: true,
-        topic: "ItemBought(address,address,uint256)",
         abi: {
             anonymous: false,
             inputs: [
@@ -131,26 +129,19 @@ const main = async () => {
         tableName: "ItemCancelled",
     }
 
-    const listedResponse = await Moralis.Cloud.run("watchContractEvent", itemListedOptions, { useMasterKey: true });
-    const boughtResponse = await Moralis.Cloud.run("watchContractEvent", itemBoughtOptions, { useMasterKey: true });
-    const cancelledResponse = await Moralis.Cloud.run("watchContractEvent", itemCancelledOptions, { useMasterKey: true });
-
-    if (listedResponse.success) {
-        console.log("Success! Database updated with listing events")
+    const listedResponse = await Moralis.Cloud.run("watchContractEvent", itemListedOptions, {
+        useMasterKey: true,
+    })
+    const boughtResponse = await Moralis.Cloud.run("watchContractEvent", itemBoughtOptions, {
+        useMasterKey: true,
+    })
+    const canceledResponse = await Moralis.Cloud.run("watchContractEvent", itemCanceledOptions, {
+        useMasterKey: true,
+    })
+    if (listedResponse.success && canceledResponse.success && boughtResponse.success) {
+        console.log("Success! Database Updated with watching events")
     } else {
-        console.log("Something went wrong with listing...", listedResponse)
-    }
-
-    if (boughtResponse.success) {
-        console.log("Success! Database updated with buying events")
-    } else {
-        console.log("Something went wrong with buying...")
-    }
-
-    if (cancelledResponse.success) {
-        console.log("Success! Database updated with cancel events")
-    } else {
-        console.log("Something went wrong with cancel...")
+        console.log("Something went wrong...")
     }
 }
 

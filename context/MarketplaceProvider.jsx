@@ -6,7 +6,7 @@ import useUserNativeBalance from "../hooks/useUserNativeBalance"
 export const MarketPlaceContext = createContext()
 
 const MarketplaceProvider = ({ children }) => {
-    const { authenticate, isAuthenticated, logout, user } = useMoralis()
+    const { authenticate, isAuthenticated, logout, user, isWeb3Enabled, account } = useMoralis()
 
     // Authenticated User's native balance
     const nativeBalance = useUserNativeBalance({
@@ -19,7 +19,9 @@ const MarketplaceProvider = ({ children }) => {
             authenticate,
             logout,
             user,
-            nativeBalance
+            nativeBalance,
+            isWeb3Enabled,
+            account,
         }
     }
 
